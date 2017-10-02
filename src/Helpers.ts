@@ -12,7 +12,7 @@ const collision = (target1: ITarget, target2: ITarget) => {
     return ((target1.x > (target2.x - 20))
         && (target1.x < (target2.x + 20)))
         && ((target1.y > (target2.y - 20))
-        && (target1.y < (target2.y + 20)));
+            && (target1.y < (target2.y + 20)));
 };
 
 export const isVisible = (target: ITarget) => {
@@ -23,7 +23,7 @@ export const isVisible = (target: ITarget) => {
         && (target.y < (canvas.height + 40));
 };
 
-const getRandomInt = (min: number, max:number) => {
+const getRandomInt = (min: number, max: number) => {
 
     return Math.floor(Math.random() * (max - min + 1)) + min;
 };
@@ -69,7 +69,7 @@ const paintScore = score => {
 
     ctx.fillStyle = Settings.SCORE_COLOR;
     ctx.font = Settings.SCORE_FONT;
-    ctx.fillText(`Score: ${score}`, 40, 43);
+    ctx.fillText(`Score: ${score}`, 45, canvas.height - 35);
 };
 
 const paintHeroShots = (heroShots, enemies) => {
@@ -94,7 +94,7 @@ const paintHeroShots = (heroShots, enemies) => {
     });
 };
 
-export const gameOver = (ship, enemies) => {
+export const gameOver = (ship, enemies): boolean => {
 
     return enemies.some(enemy => {
 
@@ -107,7 +107,9 @@ export const gameOver = (ship, enemies) => {
     });
 };
 
-export const paintGameEnding = () => {
+export const startGame = () => document.body.appendChild(canvas);
+
+export const paintGameEnding = (): void => {
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     document.body.removeChild(canvas);
@@ -116,9 +118,9 @@ export const paintGameEnding = () => {
 
 export const renderScene = actors => {
 
-        paintStars(actors.stars);
-        paintSpaceShip(actors.spaceship.x, actors.spaceship.y);
-        paintEnemies(actors.enemies);
-        paintHeroShots(actors.heroShots, actors.enemies);
-        paintScore(0);
+    paintStars(actors.stars);
+    paintSpaceShip(actors.spaceship.x, actors.spaceship.y);
+    paintEnemies(actors.enemies);
+    paintHeroShots(actors.heroShots, actors.enemies);
+    paintScore(actors.score);
 };

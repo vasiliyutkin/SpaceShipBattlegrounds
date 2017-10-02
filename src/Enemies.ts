@@ -32,8 +32,8 @@ const Enemies: Rx.Observable<{}> = Rx.Observable
         enemyArray.push(enemy);
 
         return enemyArray
-                .filter(isVisible)
-                .filter(enemy => !(enemy.isDead && enemy.shots.length === 0));
+            .filter(isVisible)
+            .filter(enemy => !(enemy.isDead && enemy.shots.length === 0));
     }, []);
 
 export default Enemies;
