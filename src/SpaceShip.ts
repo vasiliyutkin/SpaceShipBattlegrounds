@@ -1,20 +1,19 @@
 import * as Rx from "rx";
 import { canvas } from "./Canvas";
+import Setting from "./Settings";
 
-const HERO_Y = canvas.height - 30;
-const mouseMove = Rx.Observable.fromEvent(canvas, "mousemove");
-
+const mouseMove: Rx.Observable<{}> = Rx.Observable.fromEvent(canvas, "mousemove");
 const SpaceShip = mouseMove
     .map(event => {
 
         return {
             x: event["clientX"],
-            y: HERO_Y
+            y: Setting.HERO_Y
         };
     })
     .startWith({
         x: canvas.width / 2,
-        y: HERO_Y
+        y: Setting.HERO_Y
     });
 
 export default SpaceShip;

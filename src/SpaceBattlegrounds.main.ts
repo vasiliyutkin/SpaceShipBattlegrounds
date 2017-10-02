@@ -2,20 +2,19 @@ import "./styles/SpaceBattlegrounds.main.styles.css";
 import * as Rx from "rx";
 import SpaceShip from "./SpaceShip";
 import StarStream from "./StarStream";
+import Enemies from "./Enemies";
+import HeroShots from "./HeroShots";
+import Settings from "./Settings";
 import { canvas } from "./Canvas";
-import { renderScene } from "./Helpers";
+import { renderScene, gameOver, paintGameEnding } from "./Helpers";
 
-const Game = Rx.Observable.combineLatest(
-    StarStream,
-    SpaceShip,
-    (stars, spaceship) => {
+Rx.Observable
+    .combineLatest(StarStream, SpaceShip, Enemies, HeroShots, (stars, spaceship, enemies, heroShots) => { return { stars, spaceship, enemies, heroShots } })
+    .sample(Settings.SPEED)
+    .takeWhile(actors => {
 
-        return {
-            stars: stars,
-            spaceship: spaceship
-        };
-    });
-
-Game.subscribe(renderScene);
-
-document.body.appendChild(canvas);
+        const isGameEnded: boolean = gameOver(actors.spaceship, actors.enemies);
+        if (isGameEnded) paintGameEnding();
+        return !isGameEnded;
+    })
+    .subscribe(renderScene);

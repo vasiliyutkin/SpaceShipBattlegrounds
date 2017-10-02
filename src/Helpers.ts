@@ -1,15 +1,31 @@
 import { canvas, ctx } from "./Canvas";
+import { ScoreSubject } from "./Score";
+import Settings from "./Settings";
 
-const paintStars = stars => {
+interface ITarget {
+    x: number,
+    y: number
+}
 
-    ctx.fillStyle = "#000000";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = "#ffffff";
+const collision = (target1: ITarget, target2: ITarget) => {
 
-    stars.forEach(star => {
+    return ((target1.x > (target2.x - 20))
+        && (target1.x < (target2.x + 20)))
+        && ((target1.y > (target2.y - 20))
+        && (target1.y < (target2.y + 20)));
+};
 
-        ctx.fillRect(star.x, star.y, star.size, star.size);
-    })
+export const isVisible = (target: ITarget) => {
+
+    return (target.x > -40)
+        && (target.x < (canvas.width + 40))
+        && (target.y > -40)
+        && (target.y < (canvas.height + 40));
+};
+
+const getRandomInt = (min: number, max:number) => {
+
+    return Math.floor(Math.random() * (max - min + 1)) + min;
 };
 
 const drawTriangle = (x: number, y: number, width: number, color: string, direction: string) => {
@@ -23,15 +39,86 @@ const drawTriangle = (x: number, y: number, width: number, color: string, direct
     ctx.fill();
 };
 
-const paintSpaceShip = (x: number, y: number) => {
+const paintStars = stars => {
 
-    drawTriangle(x, y, 20, "#ff0000", "up");
+    ctx.fillStyle = Settings.STARFIELD_MAIN_COLOR;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = Settings.STARFIELD_SECONDARY_COLOR;
+    stars.forEach(star => ctx.fillRect(star.x, star.y, star.size, star.size))
 };
 
-const renderScene = actors => {
+const paintSpaceShip = (x: number, y: number) => drawTriangle(x, y, Settings.SHIP_SIZE, Settings.SPACESHIP_COLOR, "up");
 
-    paintStars(actors.stars);
-    paintSpaceShip(actors.spaceship.x, actors.spaceship.y);
+const paintEnemies = (enemies) => {
+
+    enemies.forEach(enemy => {
+
+        enemy.y += 5;
+        enemy.x += getRandomInt(-15, 15);
+        if (!enemy.isDead) drawTriangle(enemy.x, enemy.y, Settings.SHIP_SIZE, Settings.ENEMY_SHIPS_COLOR, "down");
+
+        enemy.shots.forEach(shot => {
+
+            shot.y += Settings.SHOOTING_SPEED;
+            drawTriangle(shot.x, shot.y, Settings.SHOT_SIZE, Settings.ENEMY_SHOTS_COLOR, "down");
+        });
+    });
 };
 
-export { paintStars, drawTriangle, paintSpaceShip, renderScene };
+const paintScore = score => {
+
+    ctx.fillStyle = Settings.SCORE_COLOR;
+    ctx.font = Settings.SCORE_FONT;
+    ctx.fillText(`Score: ${score}`, 40, 43);
+};
+
+const paintHeroShots = (heroShots, enemies) => {
+
+    heroShots.forEach((shot, i) => {
+
+        for (let l = 0; l < enemies.length; l++) {
+
+            const enemy = enemies[l];
+
+            if (!enemy.isDead && collision(shot, enemy)) {
+
+                ScoreSubject.onNext(Settings.SCORE_INCREASE);
+                enemy.isDead = true;
+                shot.x = shot.y = -100;
+                break;
+            }
+        }
+
+        shot.y -= Settings.SHOOTING_SPEED;
+        drawTriangle(shot.x, shot.y, Settings.SHOT_SIZE, Settings.HERO_SHOTS_COLOR, "up");
+    });
+};
+
+export const gameOver = (ship, enemies) => {
+
+    return enemies.some(enemy => {
+
+        if (collision(ship, enemy)) return true;
+
+        return enemy.shots.some(shot => {
+
+            return collision(ship, shot);
+        });
+    });
+};
+
+export const paintGameEnding = () => {
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    document.body.removeChild(canvas);
+    document.body.classList.add("gameOver");
+};
+
+export const renderScene = actors => {
+
+        paintStars(actors.stars);
+        paintSpaceShip(actors.spaceship.x, actors.spaceship.y);
+        paintEnemies(actors.enemies);
+        paintHeroShots(actors.heroShots, actors.enemies);
+        paintScore(0);
+};

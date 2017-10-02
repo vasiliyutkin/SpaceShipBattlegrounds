@@ -1,10 +1,9 @@
 import * as Rx from "rx";
 import { canvas } from "./Canvas";
+import Settings from "./Settings";
 
-const SPEED: number = 40;
-const STAR_NUMBER: number = 250;
-
-const StarStream = Rx.Observable.range(1, STAR_NUMBER)
+const StarStream: Rx.Observable<{}> = Rx.Observable
+    .range(1, Settings.STAR_NUMBER)
     .map(() => {
 
         return {
@@ -16,7 +15,7 @@ const StarStream = Rx.Observable.range(1, STAR_NUMBER)
     .toArray()
     .flatMap(starArray => {
 
-        return Rx.Observable.interval(SPEED).map(() => {
+        return Rx.Observable.interval(Settings.SPEED).map(() => {
 
             starArray.forEach(star => {
 
