@@ -1,49 +1,21 @@
 import "./styles/SpaceBattlegrounds.main.styles.css";
-
 import * as Rx from "rx";
+import startGame from "./Helpers";
+import { createTheme, AudioStorage } from "./ThemeManager";
 
-import {
-    canvas
-} from "./Canvas";
+createTheme("opening", "./tunes/opening.mp3");
+createTheme("battle", "./tunes/battle.mp3");
+createTheme("gameover", "./tunes/gameover.mp3");
 
-import Settings from "./Settings";
+AudioStorage["opening"].play();
+document.body.classList.add("game_start");
 
-import {
-    renderScene,
-    startGame,
-    gameOver,
-    paintGameEnding
-} from "./Helpers";
+const start_game_button = document.getElementById("space_btn_start_game");
+Rx.Observable.fromEvent(start_game_button, "click")
+    .map(e => e["target"])
+    .subscribe((element) => {
 
-import SpaceShip from "./SpaceShip";
-import StarStream from "./StarStream";
-import Enemies from "./Enemies";
-import HeroShots from "./HeroShots";
-import { Score } from "./Score";
-
-startGame();
-
-Rx.Observable
-    .combineLatest(StarStream,
-    SpaceShip,
-    Enemies,
-    HeroShots,
-    Score,
-    (stars, spaceship, enemies, heroShots, score) => {
-
-        return {
-            stars,
-            spaceship,
-            enemies,
-            heroShots,
-            score
-        };
-    })
-    .sample(Settings.SPEED)
-    .takeWhile(actors => {
-
-        const isGameEnded: boolean = gameOver(actors.spaceship, actors.enemies);
-        if (isGameEnded) paintGameEnding();
-        return !isGameEnded;
-    })
-    .subscribe(renderScene);
+        document.body.removeChild(element);
+        AudioStorage["opening"].pause();
+        AudioStorage["battle"].play().then(startGame);
+    });

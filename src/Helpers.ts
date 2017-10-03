@@ -1,6 +1,11 @@
 import { canvas, ctx } from "./Canvas";
-import { ScoreSubject } from "./Score";
+import SpaceShip from "./SpaceShip";
+import StarStream from "./StarStream";
+import Enemies from "./Enemies";
+import HeroShots from "./HeroShots";
+import { Score, ScoreSubject, getScore } from "./Score";
 import Settings from "./Settings";
+import { AudioStorage } from "./ThemeManager";
 
 interface ITarget {
     x: number,
@@ -94,7 +99,7 @@ const paintHeroShots = (heroShots, enemies) => {
     });
 };
 
-export const gameOver = (ship, enemies): boolean => {
+const gameOver = (ship, enemies): boolean => {
 
     return enemies.some(enemy => {
 
@@ -107,16 +112,20 @@ export const gameOver = (ship, enemies): boolean => {
     });
 };
 
-export const startGame = () => document.body.appendChild(canvas);
+const paintGameEnding = (): void => {
 
-export const paintGameEnding = (): void => {
+    AudioStorage["battle"].pause();    
+    AudioStorage["gameover"].play().then(() => {
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    document.body.removeChild(canvas);
-    document.body.classList.add("gameOver");
+        document.body.removeChild(canvas);
+        document.body.classList.remove("game_start");        
+        document.body.classList.add("game_over");
+        document.getElementById("player_score").style.display = "block";
+        document.getElementById("player_score").textContent = `Player Score ${getScore()}`;
+    });
 };
 
-export const renderScene = actors => {
+const renderScene = actors => {
 
     paintStars(actors.stars);
     paintSpaceShip(actors.spaceship.x, actors.spaceship.y);
@@ -124,3 +133,35 @@ export const renderScene = actors => {
     paintHeroShots(actors.heroShots, actors.enemies);
     paintScore(actors.score);
 };
+
+const startGame = () => {
+
+    document.body.appendChild(canvas);
+
+    Rx.Observable
+        .combineLatest(StarStream,
+        SpaceShip,
+        Enemies,
+        HeroShots,
+        Score,
+        (stars, spaceship, enemies, heroShots, score) => {
+
+            return {
+                stars,
+                spaceship,
+                enemies,
+                heroShots,
+                score
+            };
+        })
+        .sample(Settings.SPEED)
+        .takeWhile(actors => {
+
+            const isGameEnded: boolean = gameOver(actors.spaceship, actors.enemies);
+            if (isGameEnded) paintGameEnding();
+            return !isGameEnded;
+        })
+        .subscribe(renderScene);
+};
+
+export default startGame;

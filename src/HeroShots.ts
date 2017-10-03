@@ -4,13 +4,7 @@ import Settings from "./Settings";
 import SpaceShip from "./SpaceShip";
 
 const clickStream: Rx.Observable<{}> = Rx.Observable.fromEvent(canvas, "click");
-const spacePressStream: Rx.Observable<{}> = Rx.Observable.fromEvent(canvas, "keydown")
-    .filter(event => event["which"] == 32 || event["keyCode"] == 32);
-
-const PlayerFiring: Rx.Observable<{}> = Rx.Observable
-    .merge(clickStream, spacePressStream)
-    .sample(200)
-    .timestamp();
+const PlayerFiring: Rx.Observable<{}> = clickStream.startWith({}).sample(200).timestamp();
 
 const HeroShots: Rx.Observable<{}> = Rx.Observable
     .combineLatest(
