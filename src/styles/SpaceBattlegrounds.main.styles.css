@@ -29,17 +29,12 @@ canvas {
 
 #player_score {
     display: none;
-    width: auto;
-    height: auto;
     margin: 2% 25%;
     background: #4d0835;
     padding: 50px;
-    border: 11px solid #2a1d32;
-    border-radius: 38% 65%;
-    text-align: center;
-    font-size: 70px;
-    color: #fee;
-    font-weight: 900;
+    border-radius: 50%;
+    color: #fefefe;
+    font-weight: 600;
 }
 
 #space_btn_start_game {
@@ -64,4 +59,28 @@ canvas {
     border-radius: 3px;
     box-shadow: 0 9px #2a2025;
     color: #fee;
+}
+
+#space_btn_play_again {
+    padding: 10px 30px;
+    outline: none;
+    background-color: #271E2D;
+    border: none;
+    border-radius: 3px;
+    box-shadow: 0 4px #2B1E2D;
+    text-align: center;
+    cursor: pointer;
+    font-size: 22px;
+    margin: 0 0 0 100px;
+    color: #ffffff;
+    width: 170px;
+    transition: .25s ease-in;
+}
+
+#space_btn_play_again:hover {
+    background-color: #19CACA;
+    border: none;
+    border-radius: 6px;
+    box-shadow: 0 6px #34B6B6;
+    color: #1a1a1a;
 }

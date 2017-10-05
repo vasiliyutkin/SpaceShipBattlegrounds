@@ -3,7 +3,7 @@ import SpaceShip from "./SpaceShip";
 import StarStream from "./StarStream";
 import Enemies from "./Enemies";
 import HeroShots from "./HeroShots";
-import { Score, ScoreSubject, getScore } from "./Score";
+import { Score, ScoreSubject, getScore, resetScore } from "./Score";
 import Settings from "./Settings";
 import { AudioStorage } from "./ThemeManager";
 
@@ -11,6 +11,8 @@ interface ITarget {
     x: number,
     y: number
 }
+
+let Game: Rx.IDisposable;
 
 const collision = (target1: ITarget, target2: ITarget) => {
 
@@ -72,9 +74,16 @@ const paintEnemies = (enemies) => {
 
 const paintScore = score => {
 
+    const bestScore = sessionStorage.getItem("bestScore") || 0;
+
     ctx.fillStyle = Settings.SCORE_COLOR;
     ctx.font = Settings.SCORE_FONT;
-    ctx.fillText(`Score: ${score}`, 45, canvas.height - 35);
+    ctx.fillText(`Score: ${score}`, 45, canvas.height - 75);
+
+    ctx.fillStyle = Settings.BEST_SCORE_COLOR;
+    ctx.font = Settings.BEST_SCORE_FONT;
+    ctx.fillText(`Best Score: ${bestScore}`, 45, canvas.height - 35);
+
 };
 
 const paintHeroShots = (heroShots, enemies) => {
@@ -114,14 +123,33 @@ const gameOver = (ship, enemies): boolean => {
 
 const paintGameEnding = (): void => {
 
-    AudioStorage["battle"].pause();    
+    AudioStorage["battle"].pause();
+    AudioStorage["battle"].currentTime = 0;
     AudioStorage["gameover"].play().then(() => {
 
-        document.body.removeChild(canvas);
-        document.body.classList.remove("game_start");        
-        document.body.classList.add("game_over");
-        document.getElementById("player_score").style.display = "block";
-        document.getElementById("player_score").textContent = `Player Score ${getScore()}`;
+        const bestScore: any = sessionStorage.getItem("bestScore") || 0;
+        const parsedBestScore: number = parseInt(bestScore);
+        const currentScore: number = getScore();
+        const highestScore: number = parsedBestScore > currentScore ? parsedBestScore : currentScore;
+        sessionStorage.setItem("bestScore", String(highestScore));
+
+        document.body
+            .removeChild(canvas);
+        document.body
+            .classList.remove("game_start");
+        document.body
+            .classList.add("game_over");
+        document.getElementById("player_score")
+            .style.display = "block";
+        document.getElementById("player_score")
+            .textContent = `
+            Your Score is ${currentScore} ${currentScore == 0 ? "=( Bad Luck.. Try Again!" : "=) You are Good.. But you can do better! Lets try again!"}`;
+        document.getElementById("space_btn_play_again")
+            .style.display = "block";
+
+        Game.dispose();
+        Game = null;
+        resetScore();
     });
 };
 
@@ -138,7 +166,7 @@ const startGame = () => {
 
     document.body.appendChild(canvas);
 
-    Rx.Observable
+    Game = Rx.Observable
         .combineLatest(StarStream,
         SpaceShip,
         Enemies,

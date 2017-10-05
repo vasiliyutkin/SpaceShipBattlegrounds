@@ -1,17 +1,20 @@
 <!DOCTYPE html>
+
 <html lang="en">
 
-<head>
-    <title>SpaceShip Battlegrounds</title>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="./dist/SpaceBattlegrounds.styles.css">
-</head>
+    <head>
+        <title>SpaceShip Battlegrounds</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="./dist/SpaceBattlegrounds.styles.css">
+    </head>
 
-<body>
-    <button id="space_btn_start_game">Start Game</button>
-    <div id="player_score"></div>
-    <script src="./dist/SpaceBattlegrounds.game.js"></script>
-</body>
+    <body class="game_start">
+        <button id="space_btn_start_game" style="display: block">Start Game</button>
+        <button id="space_btn_play_again" style="display: none">Play Again</button>
+        <div id="player_score"></div>
+
+        <script src="./dist/SpaceBattlegrounds.game.js"></script>
+    </body>
 
 </html>

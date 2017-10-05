@@ -14,6 +14,8 @@ const Settings = {
     ENEMY_SHOTS_COLOR: "#1ce",
     SCORE_COLOR: "#20bb3d",
     SCORE_FONT: "bold 30px Georgia",
+    BEST_SCORE_COLOR: "#c55",
+    BEST_SCORE_FONT: "bold 35px Georgia",
     STARFIELD_MAIN_COLOR: "#1a1a1a",
     STARFIELD_SECONDARY_COLOR: "#d1e5e1",
     SHIP_SIZE: 18,
